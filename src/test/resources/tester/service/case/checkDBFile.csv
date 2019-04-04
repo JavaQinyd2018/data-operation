@@ -1,8 +1,0 @@
-class,property,flag,exp,exp,exp,exp,exp
-tb_user,id,C,34,35,36,37,38
-,username,Y,aicaigroup1,aicaigroup2,aicaigroup3,aicaigroup4,aicaigroup5
-,password,Y,123456,123456,123456,123456,123456
-,phone,Y,17834343122,17834343123,17834343124,17834343125,17834343126
-,email,Y,aicaigroup1@123.com,aicaigroup2@123.com,aicaigroup3@123.com,aicaigroup4@123.com,aicaigroup5@123.com
-,created,N,2014-09-23,2014-09-23,2014-09-23,2014-09-23,2014-09-23
-,updated,N,2014-09-23,2014-09-23,2014-09-23,2014-09-23,2014-09-23
