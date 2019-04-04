@@ -107,13 +107,13 @@ public class InitDataSource {
             Enumeration<?> enumeration = properties.propertyNames();
             while (enumeration.hasMoreElements()) {
                 String property = (String)enumeration.nextElement();
-                if (Pattern.matches("ext[0-9]_db_url", property)) {
+                if (Pattern.matches("jdbc[0-9]_db_url", property)) {
                    dataSource.setUrl(properties.getProperty(property));
-                }else if (Pattern.matches("ext[0-9]_db_username", property)) {
+                }else if (Pattern.matches("jdbc[0-9]_db_username", property)) {
                     dataSource.setUsername(properties.getProperty(property));
-                }else if (Pattern.matches("ext[0-9]_db_password", property)) {
+                }else if (Pattern.matches("jdbc[0-9]_db_password", property)) {
                     dataSource.setPassword(properties.getProperty(property));
-                }else if (Pattern.matches("username是："+"ext[0-9]_db_schema", property)) {
+                }else if (Pattern.matches("username是："+"jdbc[0-9]_db_schema", property)) {
                     dataSource.setSchame(properties.getProperty(property));
                 }
             }
@@ -154,10 +154,10 @@ public class InitDataSource {
             if (StringUtils.isBlank(envFlag)) {
                 envFlag = "1";
             }
-            String url = (String) properties.get(String.format("ext%s_db_url", envFlag));
-            String username = (String) properties.get(String.format("ext%s_db_username", envFlag));
-            String password = (String) properties.get(String.format("ext%s_db_password", envFlag));
-            String schema = (String) properties.get(String.format("ext%s_db_schema", envFlag));
+            String url = (String) properties.get(String.format("jdbc%s_db_url", envFlag));
+            String username = (String) properties.get(String.format("jdbc%s_db_username", envFlag));
+            String password = (String) properties.get(String.format("jdbc%s_db_password", envFlag));
+            String schema = (String) properties.get(String.format("jdbc%s_db_schema", envFlag));
             PreCheckUtils.checkEmpty(url, "数据库URL不能为空或者不存在");
             PreCheckUtils.checkEmpty(username, "数据库用户名不能为空或者不存在");
             PreCheckUtils.checkEmpty(password, "数据库密码不能为空或者不存在");
