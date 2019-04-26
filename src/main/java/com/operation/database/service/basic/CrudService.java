@@ -43,7 +43,7 @@ public class CrudService implements BaseService {
             try {
                 result = statement.executeUpdate(sql);
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error("sql语句：{}插入操作执行失败，错误是：{}",sql,e);
             }finally {
                 basicService.closeStatement(statement);
                 basicService.closeConnection(connection);
@@ -76,13 +76,13 @@ public class CrudService implements BaseService {
                         }
                         preparedStatement.setObject(i+1, o);
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        log.error("参数预编译失败：参数为{}，位置为{}",fieldList.get(i), i);
                     }
                 }
                 result = preparedStatement.executeUpdate();
             }
         }catch (SQLException e) {
-            e.printStackTrace();
+            log.error("sql语句：{}执行插入操作失败，错误信息为：{}",sql,e);
         }finally {
             basicService.closePreparedStatement(preparedStatement);
             basicService.closeConnection(connection);
@@ -111,13 +111,13 @@ public class CrudService implements BaseService {
                         try {
                             preparedStatement.setObject(i+1, map.get(fieldList.get(i)));
                         } catch (SQLException e) {
-                            e.printStackTrace();
+                            log.error("参数预编译失败：参数为{}，位置为{}",fieldList.get(i), i);
                         }
                     }
                     try {
                         preparedStatement.addBatch();
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        log.error("sql语句：{}添加批量插入操作失败，错误信息为：{}",sql,e);
                     }
                 }
                 try {
@@ -126,11 +126,11 @@ public class CrudService implements BaseService {
                     connection.setAutoCommit(true);
                 } catch (SQLException e) {
                     connection.rollback();
-                    e.printStackTrace();
+                    log.error("sql语句：{}执行插入操作失败，错误信息为：{}",sql,e);
                 }
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("批量插入失败或者回滚失败，错误信息为：{}",e);
         }finally {
             basicService.closePreparedStatement(preparedStatement);
             basicService.closeConnection(connection);
@@ -149,7 +149,7 @@ public class CrudService implements BaseService {
             try {
                 result = statement.executeUpdate(sql);
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error("sql语句：{}更新操作执行失败，错误是：{}",sql,e);
             }finally {
                 basicService.closeStatement(statement);
                 basicService.closeConnection(connection);
@@ -190,13 +190,13 @@ public class CrudService implements BaseService {
                     try {
                         preparedStatement.setObject(i+1, paramMap.get(fieldList.get(i)));
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        log.error("参数预编译失败：参数为{}，位置为{}",fieldList.get(i), i);
                     }
                 }
                 result = preparedStatement.executeUpdate();
             }
         }catch (SQLException e) {
-            e.printStackTrace();
+            log.error("sql语句：{}执行更新操作失败，错误信息为：{}",sql,e);
         }finally {
             basicService.closePreparedStatement(preparedStatement);
             basicService.closeConnection(connection);
@@ -215,7 +215,7 @@ public class CrudService implements BaseService {
             try {
                 result = statement.executeUpdate(sql);
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error("sql语句：{}执行删除操作失败，错误信息为：{}",sql,e);
             }finally {
                 basicService.closeStatement(statement);
                 basicService.closeConnection(connection);
@@ -243,26 +243,29 @@ public class CrudService implements BaseService {
         Statement statement = basicService.getStatement(connection);
         String tableName = SqlParser.getTableNameFromSql(sql, SqlType.SELECT);
         List<String> columnList = metaDataService.getColumnListByCatalogAndTableName(catalog, tableName);
-        if (statement != null) {
-            try {
-                ResultSet resultSet = statement.executeQuery(sql);
+        ResultSet resultSet = null;
+        try {
+            if (statement != null) {
+                resultSet = statement.executeQuery(sql);
                 while (resultSet.next()) {
                     Map<String, Object> map = Maps.newLinkedHashMap();
+                    ResultSet finalResultSet = resultSet;
                     columnList.forEach(column -> {
                         try {
-                            map.put(column, resultSet.getObject(column));
+                            map.put(column, finalResultSet.getObject(column));
                         } catch (SQLException e) {
-                            e.printStackTrace();
+                            log.error("resultSet获取参数失败，列名为：{}",column);
                         }
                     });
                     return map;
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }finally {
-                basicService.closeStatement(statement);
-                basicService.closeConnection(connection);
             }
+        } catch (SQLException e) {
+            log.error("sql是{}执行查询操作失败，错误原因是：{}",sql, e);
+        } finally {
+            closeResultSet(resultSet);
+            basicService.closeStatement(statement);
+            basicService.closeConnection(connection);
         }
         return null;
     }
@@ -289,35 +292,34 @@ public class CrudService implements BaseService {
         List<String> conditionList = listMap.entrySet().iterator().next().getValue();
         List<String> columnList = metaDataService.getColumnListByCatalogAndTableName(catalog, tableName);
         PreparedStatement preparedStatement = basicService.getPreparedStatement(connection, sql);
+        ResultSet resultSet = null;
         try {
             if (preparedStatement != null) {
                 for (int i = 0; i < conditionList.size(); i++) {
                     try {
                         preparedStatement.setObject(i+1, whereConditionMap.get(conditionList.get(i)));
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        log.error("参数预编译失败：参数为{}，位置为{}",conditionList.get(i), i);
                     }
                 }
-                try {
-                    ResultSet resultSet = preparedStatement.executeQuery();
-                    while (resultSet.next()) {
-                        Map<String, Object> map = Maps.newLinkedHashMap();
-                        columnList.forEach(column -> {
-                            try {
-                                map.put(column, resultSet.getObject(column));
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                        });
-                        return map;
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    Map<String, Object> map = Maps.newLinkedHashMap();
+                    ResultSet finalResultSet = resultSet;
+                    columnList.forEach(column -> {
+                        try {
+                            map.put(column, finalResultSet.getObject(column));
+                        } catch (SQLException e) {
+                            log.error("resultSet获取参数失败，列名为：{}",column);
+                        }
+                    });
+                    return map;
                 }
             }
         }catch (Exception e) {
-            e.printStackTrace();
+            log.error("sql是{}执行查询操作失败，错误原因是：{}",sql, e);
         }finally {
+            closeResultSet(resultSet);
             basicService.closePreparedStatement(preparedStatement);
             basicService.closeConnection(connection);
         }
@@ -333,26 +335,29 @@ public class CrudService implements BaseService {
         Statement statement = basicService.getStatement(connection);
         String tableName = SqlParser.getTableNameFromSql(sql, SqlType.SELECT);
         List<String> columnList = metaDataService.getColumnListByCatalogAndTableName(catalog, tableName);
-        if (statement != null) {
-            try {
-                ResultSet resultSet = statement.executeQuery(sql);
+        ResultSet resultSet = null;
+        try {
+            if (statement != null) {
+                resultSet = statement.executeQuery(sql);
                 while (resultSet.next()) {
                     Map<String, Object> map = Maps.newLinkedHashMap();
+                    ResultSet finalResultSet = resultSet;
                     columnList.forEach(column -> {
                         try {
-                            map.put(column, resultSet.getObject(column));
+                            map.put(column, finalResultSet.getObject(column));
                         } catch (SQLException e) {
-                            e.printStackTrace();
+                            log.error("resultSet获取参数失败，列名为：{}",column);
                         }
                     });
                     list.add(map);
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }finally {
-                basicService.closeStatement(statement);
-                basicService.closeConnection(connection);
             }
+        } catch (SQLException e) {
+            log.error("sql是{}执行查询操作失败，错误原因是：{}",sql, e);
+        } finally {
+            closeResultSet(resultSet);
+            basicService.closeStatement(statement);
+            basicService.closeConnection(connection);
         }
         return list;
     }
@@ -384,35 +389,34 @@ public class CrudService implements BaseService {
         List<String> conditionList = listMap.entrySet().iterator().next().getValue();
         List<String> columnList = metaDataService.getColumnListByCatalogAndTableName(catalog, tableName);
         PreparedStatement preparedStatement = basicService.getPreparedStatement(connection, sql);
+        ResultSet resultSet = null;
         try {
             if (preparedStatement != null) {
                 for (int i = 0; i < conditionList.size(); i++) {
                     try {
                         preparedStatement.setObject(i+1, whereConditionMap.get(conditionList.get(i)));
                     } catch (SQLException e) {
-                        e.printStackTrace();
+                        log.error("参数预编译失败：参数为{}，位置为{}",conditionList.get(i), i);
                     }
                 }
-                try {
-                    ResultSet resultSet = preparedStatement.executeQuery();
-                    while (resultSet.next()) {
-                        Map<String, Object> map = Maps.newLinkedHashMap();
-                        columnList.forEach(column -> {
-                            try {
-                                map.put(column, resultSet.getObject(column));
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                        });
-                        list.add(map);
-                    }
-                } catch (SQLException e) {
-                    e.printStackTrace();
+                resultSet = preparedStatement.executeQuery();
+                while (resultSet.next()) {
+                    Map<String, Object> map = Maps.newLinkedHashMap();
+                    ResultSet finalResultSet = resultSet;
+                    columnList.forEach(column -> {
+                        try {
+                            map.put(column, finalResultSet.getObject(column));
+                        } catch (SQLException e) {
+                            log.error("resultSet获取参数失败，列名为：{}",column);
+                        }
+                    });
+                    list.add(map);
                 }
             }
         }catch (Exception e) {
-            e.printStackTrace();
+            log.error("sql是{}执行查询操作失败，错误原因是：{}",sql, e);
         }finally {
+            closeResultSet(resultSet);
             basicService.closePreparedStatement(preparedStatement);
             basicService.closeConnection(connection);
         }
@@ -426,14 +430,19 @@ public class CrudService implements BaseService {
         SqlParser.checkSql(sql, SqlType.SELECT);
         Connection connection = basicService.getConnection();
         Statement statement = basicService.getStatement(connection);
-        if (statement != null) {
-            try {
-                ResultSet resultSet = statement.executeQuery(sql);
+        ResultSet resultSet = null;
+        try {
+            if (statement != null) {
+                resultSet = statement.executeQuery(sql);
                 resultSet.next();
                 result = resultSet.getLong(1);
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
+        } catch (SQLException e) {
+            log.error("sql是{}执行查询操作失败，错误原因是：{}",sql, e);
+        } finally {
+            closeResultSet(resultSet);
+            basicService.closeStatement(statement);
+            basicService.closeConnection(connection);
         }
         return result;
     }
@@ -469,24 +478,28 @@ public class CrudService implements BaseService {
         SqlParser.checkSql(sql, SqlType.SELECT);
         Connection connection = basicService.getConnection();
         Statement statement = basicService.getStatement(connection);
-        if (statement != null) {
-            try {
-                ResultSet resultSet = statement.executeQuery(sql);
-                if (resultSet != null) {
+        ResultSet resultSet = null;
+        try {
+            if (statement != null) {
+                resultSet = statement.executeQuery(sql);
                     while (resultSet.next()) {
+                        ResultSet finalResultSet = resultSet;
                         fieldList.forEach(field -> {
                             try {
-                                Object object = resultSet.getObject(field);
+                                Object object = finalResultSet.getObject(field);
                                 map.put(field, object);
                             } catch (SQLException e) {
-                                e.printStackTrace();
+                                log.error("resultSet获取参数失败，列名为：{}",field);
                             }
                         });
-                    }
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
+        } catch (Exception e) {
+            log.error("sql是{}执行查询操作失败，错误原因是：{}",sql, e);
+        } finally {
+            closeResultSet(resultSet);
+            basicService.closeStatement(statement);
+            basicService.closeConnection(connection);
         }
         return map;
     }
@@ -498,26 +511,30 @@ public class CrudService implements BaseService {
         SqlParser.checkSql(sql, SqlType.SELECT);
         Connection connection = basicService.getConnection();
         Statement statement = basicService.getStatement(connection);
-        if (statement != null) {
-            try {
-                ResultSet resultSet = statement.executeQuery(sql);
-                if (resultSet != null) {
-                    while (resultSet.next()) {
-                        Map<String, Object> map = Maps.newLinkedHashMap();
-                        fieldList.forEach(field -> {
-                            try {
-                                Object object = resultSet.getObject(field);
-                                map.put(field, object);
-                            } catch (SQLException e) {
-                                e.printStackTrace();
-                            }
-                        });
-                        list.add(map);
-                    }
+        ResultSet resultSet = null;
+        try {
+            if (statement != null) {
+                resultSet = statement.executeQuery(sql);
+                while (resultSet.next()) {
+                    Map<String, Object> map = Maps.newLinkedHashMap();
+                    ResultSet finalResultSet = resultSet;
+                    fieldList.forEach(field -> {
+                        try {
+                            Object object = finalResultSet.getObject(field);
+                            map.put(field, object);
+                        } catch (SQLException e) {
+                            log.error("resultSet获取参数失败，列名为：{}",field);
+                        }
+                    });
+                    list.add(map);
                 }
-            } catch (SQLException e) {
-                e.printStackTrace();
             }
+        } catch (SQLException e) {
+            log.error("sql是{}执行查询操作失败，错误原因是：{}",sql, e);
+        } finally {
+            closeResultSet(resultSet);
+            basicService.closeStatement(statement);
+            basicService.closeConnection(connection);
         }
         return list;
     }
@@ -527,5 +544,16 @@ public class CrudService implements BaseService {
         if (!metaDataService.getTableListByCatalog(catalog).contains(table)) {
             throw new IllegalArgumentException("当前数据库配置不存在"+table+"表");
         }
+    }
+
+    private void closeResultSet(ResultSet resultSet) {
+        if (resultSet != null) {
+            try {
+                resultSet.close();
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+        }
+
     }
 }
