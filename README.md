@@ -1,6 +1,14 @@
 # data-operation
 通过Java JDBC封装的增删改查工具类
 # 使用：
+下载源码打包并添加依赖
+ ```xml
+        <dependency>
+            <groupId>com.database</groupId>
+    	    <artifactId>data-operation</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+```
 ## 一.基本的增删改查
 ### 实体类
 ```java
