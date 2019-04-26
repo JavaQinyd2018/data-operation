@@ -86,7 +86,7 @@ public class User {
   jdbc112_db_schema=e3mall
  ```
  ### 2.使用
- 切换数据源配置可以通过传入数据源配置标识，需要传入参数
+ 切换数据源配置可以通过传入数据源配置标识
  ```java
  List<User> userList = Database.selectList("112",User.class, "tb_user", "id = '38960ee68b1f4cb6bc180641990b3f93' or id = '3dba6ad877974e9281299079f1acc49f'");
 ```
