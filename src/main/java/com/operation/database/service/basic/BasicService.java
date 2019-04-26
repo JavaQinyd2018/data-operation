@@ -37,7 +37,7 @@ public class BasicService {
         try {
             dataSource = initDataSource.getDataSource(envFlag);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("数据源初始化失败:错误信息为{}",e);
         }
     }
 
@@ -46,7 +46,7 @@ public class BasicService {
         try {
             dataSource = initDataSource.getDataSource(envFlag);
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("数据源初始化失败:错误信息为{}",e);
         }
     }
 
@@ -107,7 +107,7 @@ public class BasicService {
         try {
             preparedStatement = getConnection().prepareStatement(sql);
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("preparedStatement初始化失败:错误信息为{}",e);
         }
         return preparedStatement;
     }
@@ -122,7 +122,7 @@ public class BasicService {
         try {
             preparedStatement = connection.prepareStatement(sql);
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("preparedStatement初始化失败:错误信息为{}",e);
         }
         return preparedStatement;
     }
@@ -137,7 +137,7 @@ public class BasicService {
         try {
             statement = connection.createStatement();
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("statement初始化失败:错误信息为{}",e);
         }
         return statement;
     }
@@ -151,7 +151,7 @@ public class BasicService {
         try {
             statement = getConnection().createStatement();
         } catch (SQLException e) {
-            e.printStackTrace();
+            log.error("statement初始化失败:错误信息为{}",e);
         }
         return statement;
     }
@@ -165,7 +165,7 @@ public class BasicService {
             try {
                 preparedStatement.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error("statement释放资管:错误信息为{}",e);
             }
         }
     }
@@ -179,7 +179,7 @@ public class BasicService {
             try {
                 statement.close();
             } catch (SQLException e) {
-                e.printStackTrace();
+                log.error("statement释放资管:错误信息为{}",e);
             }
         }
     }
