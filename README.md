@@ -34,7 +34,7 @@ public class User {
     private Date updated;
 }
 ```
-### 1.查询
+### 1.查询数据
 ```java
  @Test
     public void test() {
@@ -45,7 +45,7 @@ public class User {
         System.out.println(selectOne);
     }
 ```
-### 2.删除
+### 2.删除数据
 ```java
  @Test
     public void testHello() {
