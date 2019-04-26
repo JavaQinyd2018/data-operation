@@ -144,11 +144,10 @@ public class InitDataSource {
             }
         }
 
-        if (bufferedReader == null) {
-            throw new RuntimeException("配置文件不存在");
-        }
-
         try {
+            if (bufferedReader == null) {
+                throw new RuntimeException("配置文件不存在");
+            }
             Properties properties = new Properties();
             properties.load(bufferedReader);
             if (StringUtils.isBlank(envFlag)) {
@@ -165,7 +164,14 @@ public class InitDataSource {
             dataSource = new DataSource(url, username, password, schema);
         } catch (IOException e) {
             e.printStackTrace();
+        }finally {
+            try {
+                bufferedReader.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
+
         return dataSource;
     }
 }
