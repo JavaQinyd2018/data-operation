@@ -1,7 +1,7 @@
 # data-operation
 通过Java JDBC封装的增删改查工具类
 # 使用：
-下载源码打包并添加依赖
+1.下载源码打包并添加依赖
  ```xml
         <dependency>
             <groupId>com.database</groupId>
@@ -9,6 +9,14 @@
             <version>1.0-SNAPSHOT</version>
         </dependency>
 ```
+2.在自己项目的resources的新建config/dbConf目录，在此目录下创建testdb.conf或者testdb.properties配置文件，添加数据源信息：
+```properties
+  # 默认数据源配置
+  jdbc1_db_url=jdbc:mysql://localhost:3306/e3mall?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=true
+  jdbc1_db_username=root
+  jdbc1_db_password=123456
+  jdbc1_db_schema=hello
+  ```
 ## 一.基本的增删改查
 ### 实体类
 ```java
