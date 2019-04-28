@@ -23,10 +23,27 @@ public class Database {
         return InsertHelper.insert(sql);
     }
 
+    /**
+     * 插入实体类
+     * @param clazz
+     * @param entity
+     * @param tableName
+     * @param <T>
+     * @return
+     */
     public static <T> int insert(Class<T> clazz, T entity, String tableName) {
         return InsertHelper.insert(clazz, entity, tableName);
     }
 
+    /**
+     * 实体类字段是驼峰（productName），数据库是下划线的（product_name）
+     * 下划线插入
+     * @param clazz
+     * @param entity
+     * @param tableName
+     * @param <T>
+     * @return
+     */
     public static <T> int insertUnderline(Class<T> clazz, T entity, String tableName) {
         return InsertHelper.insertUnderline(clazz, entity, tableName);
     }
@@ -35,6 +52,12 @@ public class Database {
         return InsertHelper.batchInsert(csvFilePath,tableName);
     }
 
+    /**
+     * csv文件批量下划线插入
+     * @param csvFilePath
+     * @param tableName
+     * @return
+     */
     public static int batchInsertUnderline(String csvFilePath,String tableName) {
         return InsertHelper.batchInsertUnderline(csvFilePath,tableName);
     }
@@ -71,6 +94,14 @@ public class Database {
         return SelectHelper.selectOne(tableName, whereConditionMap);
     }
 
+    /**
+     * 根据条件查询实体类转化成一个对象
+     * @param clazz
+     * @param tableName
+     * @param condition
+     * @param <T>
+     * @return
+     */
     public static <T> T selectOne(Class<T> clazz,String tableName, String condition) {
         return SelectHelper.selectOne(clazz,tableName, condition);
     }
@@ -91,10 +122,26 @@ public class Database {
         return JSONArray.parseArray(JSONObject.toJSONString(selectList(tableName, condition)), clazz);
     }
 
+    /**
+     * 根据条件查询数据封装成List<Map>
+     * @param tableName
+     * @param whereConditionMap
+     * @param orderByCondition
+     * @return
+     */
     public static List<Map<String, Object>> selectList(String tableName,Map<String, Object> whereConditionMap, Map<String, String> orderByCondition) {
         return SelectHelper.selectList(tableName, whereConditionMap, orderByCondition);
     }
 
+    /**
+     * 转化成实例类集合
+     * @param clazz
+     * @param tableName
+     * @param whereConditionMap
+     * @param orderByCondition
+     * @param <T>
+     * @return
+     */
     public static  <T> List<T> selectList(Class<T> clazz, String tableName,Map<String, Object> whereConditionMap, Map<String, String> orderByCondition) {
         return SelectHelper.selectList(clazz, tableName, whereConditionMap, orderByCondition);
     }
@@ -115,6 +162,15 @@ public class Database {
         return InsertWithConfigHelper.batchInsert(null, envFlag, csvFilePath, tableName);
     }
 
+    /**
+     * 通过csv文件的数据批量插入
+     * @param envFlag 环境标识
+     * @param csvFilePath
+     * @param clazz
+     * @param tableName
+     * @param <T>
+     * @return
+     */
     public static <T> int batchInsert(String envFlag,String csvFilePath, Class<T> clazz, String tableName) {
         return InsertWithConfigHelper.batchInsert(null, envFlag, csvFilePath, clazz, tableName);
     }

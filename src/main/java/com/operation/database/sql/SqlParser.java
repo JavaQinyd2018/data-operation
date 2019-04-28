@@ -26,49 +26,39 @@ import java.util.Map;
 public class SqlParser {
 
     public static void checkSql(String sql, SqlType sqlType) {
-        if (StringUtils.isBlank(sql)) {
-            throw new IllegalArgumentException("sql语句不能为空");
-        }
 
-        if (SqlType.INSERT.equals(sqlType)) {
-            //!sql.contains("insert") || !sql.contains("values") || !sql.contains("INSERT") || !sql.contains("VALUES")
-            if (!((sql.contains("insert") && sql.contains("values")) ||(sql.contains("INSERT") && sql.contains("VALUES")))) {
-                throw new IllegalArgumentException("sql语句格式不合法");
-            }
-
-            if (!sql.trim().startsWith("insert") && !sql.trim().startsWith("INSERT")) {
-                throw new IllegalArgumentException("插入类型的sql语句必须以insert的开始");
-            }
-
-        }else if (SqlType.UPDATE.equals(sqlType)) {
-            //
-            if (!((sql.contains("update") && sql.contains("set")) ||(sql.contains("UPDATE") && sql.contains("SET")))) {
-                throw new IllegalArgumentException("sql语句格式不合法");
-            }
-
-            if (!sql.trim().startsWith("update") && !sql.trim().startsWith("SET")) {
-                throw new IllegalArgumentException("更新类型的sql语句必须以update的开始");
-            }
-        }else if (SqlType.DELETE.equals(sqlType)) {
-            //
-            if (!((sql.contains("delete") && sql.contains("from")) ||(sql.contains("DELETE") && sql.contains("FROM")))) {
-                throw new IllegalArgumentException("sql语句格式不合法");
-            }
-
-            if (!sql.trim().startsWith("delete") && !sql.trim().startsWith("DELETE")) {
-                throw new IllegalArgumentException("删除类型的sql语句必须以delete的开始");
-            }
-        }else if (SqlType.SELECT.equals(sqlType)) {
-            //
-            if (!((sql.contains("select") && sql.contains("from")) ||(sql.contains("SELECT") && sql.contains("FROM")))) {
-                throw new IllegalArgumentException("sql语句格式不合法");
-            }
-
-            if (!sql.trim().startsWith("select") && !sql.trim().startsWith("SELECT")) {
-                throw new IllegalArgumentException("查询类型的sql语句必须以select的开始");
-            }
-        }else {
-            throw new UnknownException(new IllegalArgumentException("没有对应类型的sql"));
+        PreCheckUtils.checkEmpty(sql, "sql语句不能为空");
+        switch (sqlType) {
+            case INSERT:
+                if (!(StringUtils.containsIgnoreCase(sql.trim(), "insert ")
+                        && StringUtils.containsIgnoreCase(sql.trim()," values")
+                        && StringUtils.startsWithIgnoreCase(sql.trim(), "insert"))) {
+                    throw new IllegalArgumentException("sql语句格式不合法,插入类型的sql语句必须以insert的开始,包含values关键字,\nsql是："+sql);
+                }
+                break;
+            case UPDATE:
+                if (!(StringUtils.containsIgnoreCase(sql.trim(), "update ")
+                        && StringUtils.containsIgnoreCase(sql.trim()," set")
+                        && StringUtils.startsWithIgnoreCase(sql.trim(), "update"))) {
+                    throw new IllegalArgumentException("sql语句格式不合法,修改类型的sql语句必须以update的开始,并且包含set关键字,\nsql是："+sql);
+                }
+                break;
+            case DELETE:
+                if (!(StringUtils.containsIgnoreCase(sql.trim(), "delete ")
+                        && StringUtils.containsIgnoreCase(sql.trim()," from")
+                        && StringUtils.startsWithIgnoreCase(sql.trim(), "delete"))) {
+                    throw new IllegalArgumentException("sql语句格式不合法,删除类型的sql语句必须以delete的开始,包含from关键字,\nsql是："+sql);
+                }
+                break;
+            case SELECT:
+                if (!(StringUtils.containsIgnoreCase(sql.trim(), "select ")
+                        && StringUtils.containsIgnoreCase(sql.trim()," from")
+                        && StringUtils.startsWithIgnoreCase(sql.trim(), "select"))) {
+                    throw new IllegalArgumentException("sql语句格式不合法,查询类型的sql语句必须以select的开始,包含from关键字,\nsql是："+sql);
+                }
+                break;
+            default:
+                throw new UnknownException(new IllegalArgumentException("没有对应类型的sql"));
         }
     }
 

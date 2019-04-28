@@ -47,6 +47,14 @@ public class DatabaseCheck {
         DBCheckHelper.checkEquals(clazz, actualCollection, exceptCollection, MESSAGE);
     }
 
+    /**
+     * 校验查询的单个字段
+     * @param tableName
+     * @param condition
+     * @param field
+     * @param expect
+     * @param message
+     */
     public static void checkField(String tableName, String condition, String field, Object expect, String message) {
         List<Object> objects = SelectHelper.selectByField(tableName, field, condition);
         if (CollectionUtils.isEmpty(objects) || objects.size() != 1) {
@@ -55,11 +63,26 @@ public class DatabaseCheck {
         DBCheckHelper.checkEquals(objects.get(0), expect, message);
     }
 
+    /**
+     * 校验查询的字段对应值得集合
+     * @param tableName
+     * @param condition
+     * @param field
+     * @param expectList
+     * @param message
+     */
     public static void checkListField(String tableName, String condition, String field, List<Object> expectList, String message) {
         List<Object> objects = SelectHelper.selectByField(tableName, field, condition);
         DBCheckHelper.checkEquals(objects.toArray(), expectList.toArray(), message);
     }
 
+    /**
+     * 根据查询的结果和预期的map的结果进行校验
+     * @param tableName
+     * @param condition
+     * @param expectMap
+     * @param message
+     */
     public static void checkMap(String tableName, String condition, Map<String, Object> expectMap, String message) {
         Map<String, Object> map = SelectHelper.selectOne(tableName, condition);
         if (MapUtils.isEmpty(map)) {
@@ -72,10 +95,22 @@ public class DatabaseCheck {
         DatabaseCheck.checkMap(tableName, condition, expectMap, MESSAGE);
     }
 
+    /**
+     * 根据csv文件的数据，进行index获取单个结果进行校验
+     * @param csvPathFile
+     * @param index
+     * @param message
+     */
     public static void checkByCsvFile(String csvPathFile, int index, String message) {
         DBCheckHelper.checkEquals(csvPathFile, index, message);
     }
 
+    /**
+     * 将csv文件中的数据拼成sql语句，查询的结果和文件中的期望结果进行校验
+     * 校验整个csv文件中的数据
+     * @param csvPathFile
+     * @param index
+     */
     public static void checkByCsvFile(String csvPathFile, int index) {
         DBCheckHelper.checkEquals(csvPathFile, index, MESSAGE);
     }
