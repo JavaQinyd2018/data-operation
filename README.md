@@ -38,18 +38,19 @@ public class User {
 ```java
  @Test
     public void test() {
-        //查询list转化成User对象
-        List<User> userList = Database.selectList(User.class, "tb_user", "id = '38960ee68b1f4cb6bc180641990b3f93' or id = '3dba6ad877974e9281299079f1acc49f'");
-        System.out.println(userList);
+       //1.直接输入sql语句查询
         Map<String, Object> selectOne = Database.selectOne("select * from tb_user where id = 1");
         System.out.println(selectOne);
+        //2.查询list转化成User对象
+        List<User> userList = Database.selectList(User.class, "tb_user", "id = '38960ee68b1f4cb6bc180641990b3f93' or id = '3dba6ad877974e9281299079f1acc49f'");
+        System.out.println(userList);
     }
 ```
 ### 2.删除数据
 ```java
  @Test
     public void testHello() {
-        //删除，result是几就说明删了几条
+        //根据条件删除，result是几就说明删了几条
         int result = Database.delete("tb_user", "id = '38960ee68b1f4cb6bc180641990b3f93'");
         System.out.println(result);
     }
@@ -66,8 +67,11 @@ public class User {
         map.put("email","kobe@123.com");
         map.put("created",new Date());
         map.put("updated",new Date());
+	//1.按照键值对的方式插入数据到表中
         System.out.println(Database.insert("tb_user",map));
-        System.out.println(Database.insert(User.class, JSONObject.parseObject(JSON.toJSONString(map),User.class),"tb_user"));
+	User user = JSONObject.parseObject(JSON.toJSONString(map),User.class);
+	//2. 直接插入实体类到数据库
+        System.out.println(Database.insert(User.class, user,"tb_user"));
     }
   ```
   ### 4.修改数据
@@ -82,8 +86,14 @@ public class User {
         map.put("email","jordan@123.com");
         map.put("created",new Date());
         map.put("updated",new Date());
+	//1.更新，通过map更新数据库的信息
         System.out.println(Database.update("tb_user",map));
-        System.out.println(Database.update(User.class, JSONObject.parseObject(JSON.toJSONString(map),User.class),"tb_user"));
+	//2.转化成实体类更新数据库数据
+	User user = JSONObject.parseObject(JSON.toJSONString(map),User.class);
+        System.out.println(Database.update(User.class, user,"tb_user"));
+	//3. 也可以通过sql语句直接更新
+	int result = Database.update("update set username = 'kobe' where id = 15");
+	System.out.println(result);
     }
   ```
   ## 二.切换数据源，根据配置增删改查操作
@@ -104,6 +114,9 @@ public class User {
  ### 2.使用
  切换数据源配置可以通过传入数据源配置标识
  ```java
+ //1. 切换环境，直接通过条件sql进行查询
+ Database.selectList("112","tb_user", "id = '38960ee68b1f4cb6bc180641990b3f93' or id = '3dba6ad877974e9281299079f1acc49f'");
+ //2. 查询的结果转化成实体类对象信息
  List<User> userList = Database.selectList("112",User.class, "tb_user", "id = '38960ee68b1f4cb6bc180641990b3f93' or id = '3dba6ad877974e9281299079f1acc49f'");
 ```
 ## 三.数据库数据校验
