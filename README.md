@@ -8,7 +8,7 @@
     	    <artifactId>data-operation</artifactId>
             <version>1.1.0</version>
         </dependency>
-```
+ ```
 2.在自己项目的resources的新建config/db.properties配置文件，添加数据源信息：
 ```properties
   # 默认数据源配置
@@ -17,14 +17,10 @@ jdbc.datasource.url=jdbc:mysql://localhost:3306/test?useUnicode=true&characterEn
 jdbc.datasource.username=root
 jdbc.datasource.password=123456
 jdbc.datasource.schema=test
-  ```
+```
 ## 一.基本的增删改查
 ### 实体类
 ```java
-@AllArgsConstructor
-@ToString
-@NoArgsConstructor
-@Data
 public class User {
     private String id;
     private String username;
@@ -43,7 +39,7 @@ public class User {
         Map<String, Object> selectOne = Database.selectOne("select * from tb_user where id = 1");
         System.out.println(selectOne);
         //2.查询list转化成User对象
-        List<User> userList = Database.selectList(User.class, "tb_user", "id = '38960ee68b1f4cb6bc180641990b3f93' or id = '3dba6ad877974e9281299079f1acc49f'");
+        List<User> userList = Database.selectList(User.class, "tb_user", "id = 1 or id = 2");
         System.out.println(userList);
     }
 ```
@@ -100,7 +96,7 @@ public class User {
   ```
   ## 二.切换数据源，根据配置增删改查操作
   ### 1.配置
-  默认读取 jdbc1_db_url，也就是标识为1的数据库配置
+  默认读取 jdbc.datasource.driver，也就是标识为dev的数据库配置
   ```properties
   # 默认数据源配置
 jdbc.datasource.driver=com.mysql.cj.jdbc.Driver
@@ -114,7 +110,7 @@ dev.jdbc.datasource.url=jdbc:mysql://localhost:3306/51shopping?useUnicode=true&c
 dev.jdbc.datasource.username=root
 dev.jdbc.datasource.password=123456
 dev.jdbc.datasource.schema=test
- ```
+  ```
  ### 2.使用
  切换数据源配置可以通过传入数据源配置标识
  ```java
@@ -124,5 +120,4 @@ dev.jdbc.datasource.schema=test
  //2. 查询的结果转化成实体类对象信息
  List<User> userList = DatabaseSwitch.selectList("112",User.class, "tb_user", "id = 1 or id = 2");
  System.out.println(userList);
-```
-### 3. 其他的校验，有结合增删改查的操作的校验：从数据库通过sql语句查询出相关数据，在通过DatabaseCheck进行校验，详细的用法直接看api
+ ```
