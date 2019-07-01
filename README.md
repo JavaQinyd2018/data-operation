@@ -6,16 +6,17 @@
         <dependency>
             <groupId>com.database</groupId>
     	    <artifactId>data-operation</artifactId>
-            <version>1.0-SNAPSHOT</version>
+            <version>1.1.0</version>
         </dependency>
 ```
-2.在自己项目的resources的新建config/dbConf目录，在此目录下创建testdb.conf配置文件，添加数据源信息：
+2.在自己项目的resources的新建config/db.properties配置文件，添加数据源信息：
 ```properties
   # 默认数据源配置
-  jdbc1_db_url=jdbc:mysql://localhost:3306/e3mall?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=true
-  jdbc1_db_username=root
-  jdbc1_db_password=123456
-  jdbc1_db_schema=hello
+jdbc.datasource.driver=com.mysql.cj.jdbc.Driver
+jdbc.datasource.url=jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+jdbc.datasource.username=root
+jdbc.datasource.password=123456
+jdbc.datasource.schema=test
   ```
 ## 一.基本的增删改查
 ### 实体类
@@ -48,16 +49,16 @@ public class User {
 ```
 ### 2.删除数据
 ```java
- @Test
+    @Test
     public void testHello() {
         //根据条件删除，result是几就说明删了几条
-        int result = Database.delete("tb_user", "id = '38960ee68b1f4cb6bc180641990b3f93'");
+        int result = Database.delete("tb_user", "id = 1");
         System.out.println(result);
     }
 ```
   ### 3.插入数据
   ```java
-   @Test
+    @Test
     public void test4() {
         Map<String, Object> map = Maps.newHashMap();
         map.put("id",15);
@@ -71,12 +72,13 @@ public class User {
         System.out.println(Database.insert("tb_user",map));
 	User user = JSONObject.parseObject(JSON.toJSONString(map),User.class);
 	//2. 直接插入实体类到数据库
-        System.out.println(Database.insert(User.class, user,"tb_user"));
+        int result = Database.insert(User.class, user,"tb_user");
+        System.out.println(result);
     }
   ```
   ### 4.修改数据
   ```java
-   @Test
+    @Test
     public void test4() {
         Map<String, Object> map = Maps.newHashMap();
         map.put("id",15);
@@ -101,65 +103,26 @@ public class User {
   默认读取 jdbc1_db_url，也就是标识为1的数据库配置
   ```properties
   # 默认数据源配置
-  jdbc1_db_url=jdbc:mysql://localhost:3306/e3mall?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=true
-  jdbc1_db_username=root
-  jdbc1_db_password=123456
-  jdbc1_db_schema=e3mall
+jdbc.datasource.driver=com.mysql.cj.jdbc.Driver
+jdbc.datasource.url=jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+jdbc.datasource.username=root
+jdbc.datasource.password=123456
+jdbc.datasource.schema=test
   # 112数据源配置
-  jdbc112_db_url=jdbc:mysql://localhost:3306/e3mall?useUnicode=true&characterEncoding=UTF-8&serverTimezone=GMT%2B8&useSSL=true
-  jdbc112_db_username=root
-  jdbc112_db_password=123456
-  jdbc112_db_schema=e3mall
+dev.jdbc.datasource.driver=com.mysql.cj.jdbc.Driver
+dev.jdbc.datasource.url=jdbc:mysql://localhost:3306/51shopping?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true&useSSL=false&useUnicode=true&useJDBCCompliantTimezoneShift=true&useLegacyDatetimeCode=false&serverTimezone=UTC
+dev.jdbc.datasource.username=root
+dev.jdbc.datasource.password=123456
+dev.jdbc.datasource.schema=test
  ```
  ### 2.使用
  切换数据源配置可以通过传入数据源配置标识
  ```java
  //1. 切换环境，直接通过条件sql进行查询
- Database.selectList("112","tb_user", "id = '38960ee68b1f4cb6bc180641990b3f93' or id = '3dba6ad877974e9281299079f1acc49f'");
+ List<Map<String,Object>> result = DatabaseSwitch.selectList("112","tb_user", "id = 1 or id = 2");
+ System.out.println(result);
  //2. 查询的结果转化成实体类对象信息
- List<User> userList = Database.selectList("112",User.class, "tb_user", "id = '38960ee68b1f4cb6bc180641990b3f93' or id = '3dba6ad877974e9281299079f1acc49f'");
-```
-## 三.数据库数据校验
-### 1.校验两个实体对象
-```java
- @Test
-    public void test() {
-        //校验两个实体对象相等
-        User user = new User("123","kobe","123456","1234567890","kobe@123456",new Date(),new Date());
-        User user2 = new User("123","jordan","123456","1234567890","kobe@123456",new Date(),new Date());
-        DatabaseCheck.checkEntity(User.class, user, user2,"两个对象不相等");
-    }
-    
-    ============================================================================
-    java.lang.RuntimeException: 两个对象不相等
-当前校验的字段为：【username】，实际值为：【kobe】，期望值为：【jordan】
-
-	at com.operation.database.check.DBCheckHelper.checkEquals(DBCheckHelper.java:53)
-	at com.operation.database.DatabaseCheck.checkEntity(DatabaseCheck.java:25)
-	at CheckTest.test(CheckTest.java:18)
-```
-### 2.校验两个集合
-```java
-@Test
-    public void test2() {
-        List<User> userList = Lists.newArrayList();
-
-        List<User> userList2 = Lists.newArrayList();
-        User user = new User("123","kobe","123456","1234567890","kobe@123456",new Date(),new Date());
-        User user1 = new User("123","kobe","123456","1234567890","kobe@123456",new Date(),new Date());
-        User user2 = new User("123","jordan","123456","1234567890","kobe@123456",new Date(),new Date());
-        User user3 = new User("123","jordan","123456","1234567890","kobe@123456",new Date(),new Date());
-        userList.add(user);
-        userList.add(user3);
-        userList2.add(user2);
-        userList2.add(user1);
-        DatabaseCheck.checkEntityCollection(User.class, userList, userList2,"两个集合不相等" );
-    }
-    ==========================================================================================
-    java.lang.RuntimeException: 集合中第1对象==>两个集合不相等<==集合中第1对象
-当前校验的字段为：【username】，实际值为：【kobe】，期望值为：【jordan】
-
-	at com.operation.database.check.DBCheckHelper.checkEquals(DBCheckHelper.java:53)
-	at com.operation.database.check.DBCheckHelper.checkEquals(DBCheckHelper.java:80)
+ List<User> userList = DatabaseSwitch.selectList("112",User.class, "tb_user", "id = 1 or id = 2");
+ System.out.println(userList);
 ```
 ### 3. 其他的校验，有结合增删改查的操作的校验：从数据库通过sql语句查询出相关数据，在通过DatabaseCheck进行校验，详细的用法直接看api
