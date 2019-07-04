@@ -102,7 +102,6 @@ class SelectExecutor {
         }
 
         List<Map<String, Object>> selectByField(String tableName, String field, String condition) {
-            PreCheckUtils.checkEmpty(field, "字段不能为空");
             if (StringUtils.isNotBlank(condition)) {
                 condition = "WHERE " + condition;
             }
