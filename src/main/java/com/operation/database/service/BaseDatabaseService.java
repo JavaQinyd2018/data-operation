@@ -13,6 +13,8 @@ import com.operation.database.entity.SqlType;
 import com.operation.database.exception.DatabaseOperationException;
 import com.operation.database.utils.SqlParser;
 import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.lang3.ArrayUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,7 +39,6 @@ public class BaseDatabaseService implements BaseDatabase {
 
     @Override
     public int insert(String sql) {
-        SqlParser.checkSql(sql, SqlType.INSERT);
         return executeUpdate(sql);
     }
 
@@ -85,7 +86,6 @@ public class BaseDatabaseService implements BaseDatabase {
 
     @Override
     public int update(String sql) {
-        SqlParser.checkSql(sql, SqlType.UPDATE);
         return executeUpdate(sql);
     }
 
@@ -107,7 +107,6 @@ public class BaseDatabaseService implements BaseDatabase {
 
     @Override
     public int delete(String sql) {
-        SqlParser.checkSql(sql, SqlType.DELETE);
         return executeUpdate(sql);
     }
 
@@ -126,7 +125,6 @@ public class BaseDatabaseService implements BaseDatabase {
 
     @Override
     public Map<String, Object> selectOne(String sql) {
-        SqlParser.checkSql(sql, SqlType.SELECT);
         Statement statement = statementService.getStatement();
         StatementExecutor executor = new StatementExecutor(statement);
 
@@ -135,7 +133,13 @@ public class BaseDatabaseService implements BaseDatabase {
             ResultSetHandler resultSetHandler = new ResultSetHandler(resultSet);
             MetaDataHandler handler = new MetaDataHandler(statementService);
             String tableName = SqlParser.getTableNameFromSql(sql, SqlType.SELECT);
-            List<String> columnList = handler.getColumnList(null, tableName);
+            String[] catalogAndTableName = getCatalogAndTableName(tableName);
+            String catalog = null;
+            if (ArrayUtils.isNotEmpty(catalogAndTableName)) {
+                catalog = catalogAndTableName[0];
+                tableName = catalogAndTableName[1];
+            }
+            List<String> columnList = handler.getColumnList(catalog, tableName);
             List<Map<String, Object>> result = resultSetHandler.handle(columnList);
             if (CollectionUtils.isNotEmpty(result) && result.size() != 1) {
                 throw new DatabaseOperationException("查询的结果信息不止一条");
@@ -158,7 +162,13 @@ public class BaseDatabaseService implements BaseDatabase {
         PrepareStatementExecutor executor = new PrepareStatementExecutor(preparedStatement);
         try {
             MetaDataHandler handler = new MetaDataHandler(statementService);
-            List<String> columnList = handler.getColumnList(null, tableName);
+            String[] catalogAndTableName = getCatalogAndTableName(tableName);
+            String catalog = null;
+            if (ArrayUtils.isNotEmpty(catalogAndTableName)) {
+                catalog = catalogAndTableName[0];
+                tableName = catalogAndTableName[1];
+            }
+            List<String> columnList = handler.getColumnList(catalog, tableName);
             ResultSet resultSet = executor.executeQuery(prepareSql, paramValue.toArray());
             ResultSetHandler resultSetHandler = new ResultSetHandler(resultSet);
             List<Map<String, Object>> result = resultSetHandler.handle(columnList);
@@ -176,7 +186,6 @@ public class BaseDatabaseService implements BaseDatabase {
 
     @Override
     public List<Map<String, Object>> selectList(String sql) {
-        SqlParser.checkSql(sql, SqlType.SELECT);
         Statement statement = statementService.getStatement();
         StatementExecutor executor = new StatementExecutor(statement);
         try {
@@ -184,7 +193,13 @@ public class BaseDatabaseService implements BaseDatabase {
             ResultSetHandler resultSetHandler = new ResultSetHandler(resultSet);
             MetaDataHandler handler = new MetaDataHandler(statementService);
             String tableName = SqlParser.getTableNameFromSql(sql, SqlType.SELECT);
-            List<String> columnList = handler.getColumnList(null, tableName);
+            String[] catalogAndTableName = getCatalogAndTableName(tableName);
+            String catalog = null;
+            if (ArrayUtils.isNotEmpty(catalogAndTableName)) {
+                catalog = catalogAndTableName[0];
+                tableName = catalogAndTableName[1];
+            }
+            List<String> columnList = handler.getColumnList(catalog, tableName);
             List<Map<String, Object>> result = resultSetHandler.handle(columnList);
             resultSetHandler.close();
             return result;
@@ -204,7 +219,13 @@ public class BaseDatabaseService implements BaseDatabase {
         PrepareStatementExecutor executor = new PrepareStatementExecutor(preparedStatement);
         try {
             MetaDataHandler handler = new MetaDataHandler(statementService);
-            List<String> columnList = handler.getColumnList(null, tableName);
+            String[] catalogAndTableName = getCatalogAndTableName(tableName);
+            String catalog = null;
+            if (ArrayUtils.isNotEmpty(catalogAndTableName)) {
+                catalog = catalogAndTableName[0];
+                tableName = catalogAndTableName[1];
+            }
+            List<String> columnList = handler.getColumnList(catalog, tableName);
             ResultSet resultSet = executor.executeQuery(prepareSql, paramValue.toArray());
             ResultSetHandler resultSetHandler = new ResultSetHandler(resultSet);
             List<Map<String, Object>> result = resultSetHandler.handle(columnList);
@@ -219,7 +240,6 @@ public class BaseDatabaseService implements BaseDatabase {
 
     @Override
     public Long selectCount(String sql) {
-        SqlParser.checkSql(sql, SqlType.SELECT);
         Statement statement = statementService.getStatement();
         StatementExecutor executor = new StatementExecutor(statement);
         try {
@@ -301,5 +321,16 @@ public class BaseDatabaseService implements BaseDatabase {
         } finally {
             statementService.closeStatement(statement);
         }
+    }
+
+    private String[] getCatalogAndTableName(String tableNameSeq) {
+        if (StringUtils.contains(tableNameSeq, ".")) {
+            String[] split = StringUtils.split(tableNameSeq, ".");
+            if (ArrayUtils.isEmpty(split) || split.length != 2) {
+                throw new DatabaseOperationException("表名不合法");
+            }
+            return split;
+        }
+        return new String[]{};
     }
 }
