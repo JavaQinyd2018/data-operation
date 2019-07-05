@@ -9,7 +9,9 @@ import org.apache.commons.lang3.StringUtils;
  * sql解析器
  */
 
-public class SqlParser {
+public final class SqlParser {
+
+    private SqlParser() {}
 
     public static void checkSql(String sql, SqlType sqlType) {
         PreCheckUtils.checkEmpty(sql, "sql语句不能为空");

@@ -21,7 +21,7 @@ public class ConnectionFactory extends BasePooledObjectFactory<Connection> {
     private static final String DRIVER_NAME="com.mysql.cj.jdbc.Driver";
     private DataSource dataSource;
 
-    public ConnectionFactory(DataSource dataSource) {
+    ConnectionFactory(DataSource dataSource) {
         this.dataSource = dataSource;
     }
 
@@ -53,8 +53,11 @@ public class ConnectionFactory extends BasePooledObjectFactory<Connection> {
     @Override
     public boolean validateObject(PooledObject<Connection> p) {
         Connection connection = p.getObject();
+        if (connection == null) {
+            return false;
+        }
         try {
-            return connection.isClosed();
+            return !connection.isClosed();
         } catch (SQLException e) {
             return false;
         }

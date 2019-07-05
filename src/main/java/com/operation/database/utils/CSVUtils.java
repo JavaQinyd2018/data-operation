@@ -19,8 +19,9 @@ import java.util.Map;
  * @desciption
  * @since
  */
-public class CSVUtils {
+public final class CSVUtils {
 
+    private CSVUtils() {}
     //csv路径为相对路径
     public static List<Map<String,Object>> parseCSVFile(String csvFilePath) {
         List<Map<String, Object>> mapList = Lists.newArrayList();
