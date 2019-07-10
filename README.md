@@ -33,7 +33,7 @@ public class User {
 ```
 ### 1.查询数据
 ```java
- @Test
+    @Test
     public void test() {
        //1.直接输入sql语句查询
         Map<String, Object> selectOne = Database.selectOne("select * from tb_user where id = 1");
