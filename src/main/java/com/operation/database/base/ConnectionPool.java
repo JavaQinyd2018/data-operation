@@ -17,8 +17,10 @@ public class ConnectionPool extends BaseObjectPool<Connection> {
 
     private ConnectionFactory connectionFactory;
     private BlockingQueue<Connection> pool;
+    private int max;
 
-    public ConnectionPool(ConnectionFactory connectionFactory, int max) {
+    ConnectionPool(ConnectionFactory connectionFactory, int max) {
+        this.max = max;
         this.connectionFactory = connectionFactory;
         pool = new ArrayBlockingQueue<>(max);
         for (int i = 0; i < max; i++) {
@@ -44,9 +46,9 @@ public class ConnectionPool extends BaseObjectPool<Connection> {
     public void returnObject(Connection connection) throws Exception {
         if (connection != null) {
            if (!connectionFactory.validateObject(connectionFactory.wrap(connection))) {
-               if (!pool.offer(connection)) {
-                   connectionFactory.destroyObject(connectionFactory.wrap(connection));
-               }
+               invalidateObject(connection);
+           }else if (pool.size() < max && !pool.offer(connection)) {
+               connectionFactory.destroyObject(connectionFactory.wrap(connection));
            }
         }
     }

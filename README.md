@@ -33,7 +33,7 @@ public class User {
 ```
 ### 1.查询数据
 ```java
- @Test
+    @Test
     public void test() {
        //1.直接输入sql语句查询
         Map<String, Object> selectOne = Database.selectOne("select * from tb_user where id = 1");
@@ -64,10 +64,10 @@ public class User {
         map.put("email","kobe@123.com");
         map.put("created",new Date());
         map.put("updated",new Date());
-	//1.按照键值对的方式插入数据到表中
+	    //1.按照键值对的方式插入数据到表中
         System.out.println(Database.insert("tb_user",map));
-	User user = JSONObject.parseObject(JSON.toJSONString(map),User.class);
-	//2. 直接插入实体类到数据库
+	    User user = JSONObject.parseObject(JSON.toJSONString(map),User.class);
+	    //2. 直接插入实体类到数据库
         int result = Database.insert(User.class, user,"tb_user");
         System.out.println(result);
     }
@@ -84,14 +84,14 @@ public class User {
         map.put("email","jordan@123.com");
         map.put("created",new Date());
         map.put("updated",new Date());
-	//1.更新，通过map更新数据库的信息
+	    //1.更新，通过map更新数据库的信息
         System.out.println(Database.update("tb_user",map));
-	//2.转化成实体类更新数据库数据
-	User user = JSONObject.parseObject(JSON.toJSONString(map),User.class);
+	    //2.转化成实体类更新数据库数据
+	    User user = JSONObject.parseObject(JSON.toJSONString(map),User.class);
         System.out.println(Database.update(User.class, user,"tb_user"));
-	//3. 也可以通过sql语句直接更新
-	int result = Database.update("update set username = 'kobe' where id = 15");
-	System.out.println(result);
+	    //3. 也可以通过sql语句直接更新
+	    int result = Database.update("update set username = 'kobe' where id = 15");
+	    System.out.println(result);
     }
   ```
   ## 二.切换数据源，根据配置增删改查操作
