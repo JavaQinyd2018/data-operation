@@ -23,7 +23,7 @@ public class StatementService {
             throw new DatabaseOperationException("初始化数据源配置失败");
         }
         ConnectionFactory connectionFactory = new ConnectionFactory(datasourceConfig.getDataSource());
-        connectionPool = new ConnectionPool(connectionFactory, 10);
+        connectionPool = new ConnectionPool(connectionFactory, 5);
         try {
             connection = connectionPool.borrowObject();
         } catch (Exception e) {

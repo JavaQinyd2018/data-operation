@@ -18,16 +18,12 @@ import java.sql.SQLException;
  */
 public class ConnectionFactory extends BasePooledObjectFactory<Connection> {
 
-    private static final String DRIVER_NAME="com.mysql.cj.jdbc.Driver";
     private DataSource dataSource;
 
     ConnectionFactory(DataSource dataSource) {
         this.dataSource = dataSource;
-    }
-
-    static {
         try {
-            Class.forName(DRIVER_NAME);
+            Class.forName(dataSource.getDriver());
         } catch (ClassNotFoundException e) {
             throw new DatabaseOperationException("数据库驱动初始化失败",e);
         }

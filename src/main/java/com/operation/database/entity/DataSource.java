@@ -6,16 +6,18 @@ package com.operation.database.entity;
  * @Since:
  */
 public class DataSource {
+    private String driver;
     private String url;
     private String username;
     private String password;
-    private String schame;
 
-    public DataSource(String url, String username, String password, String schame) {
-        this.url = url;
-        this.username = username;
-        this.password = password;
-        this.schame = schame;
+
+    public String getDriver() {
+        return driver;
+    }
+
+    public void setDriver(String driver) {
+        this.driver = driver;
     }
 
     public String getUrl() {
@@ -42,12 +44,12 @@ public class DataSource {
         this.password = password;
     }
 
-    public String getSchame() {
-        return schame;
-    }
 
-    public void setSchame(String schame) {
-        this.schame = schame;
+    public DataSource(String driver, String url, String username, String password) {
+        this.driver = driver;
+        this.url = url;
+        this.username = username;
+        this.password = password;
     }
 
     @Override
@@ -56,7 +58,6 @@ public class DataSource {
                 "url='" + url + '\'' +
                 ", username='" + username + '\'' +
                 ", password='" + password + '\'' +
-                ", schame='" + schame + '\'' +
                 '}';
     }
 }

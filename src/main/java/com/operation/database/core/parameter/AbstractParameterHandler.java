@@ -18,7 +18,7 @@ import java.util.Map;
 public abstract class AbstractParameterHandler implements ParameterHandler {
     protected List<Object> list = ListUtils.synchronizedList(new ArrayList<>());
 
-    protected String buildCondition(Map<String, Object> conditionMap, Map<String, String> orderMap) {
+    String buildCondition(Map<String, Object> conditionMap, Map<String, String> orderMap) {
         String whereSqlSeq = "";
 
         if (MapUtils.isNotEmpty(conditionMap)) {

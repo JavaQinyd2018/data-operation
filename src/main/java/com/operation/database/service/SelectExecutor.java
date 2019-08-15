@@ -3,7 +3,6 @@ package com.operation.database.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.operation.database.base.StatementService;
-import com.operation.database.utils.PreCheckUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,7 +15,6 @@ import java.util.Map;
  * @author Qinyadong
  * @date 2019/6/30 9:48
  * @desciption
- * @since
  */
 class SelectExecutor {
 
@@ -101,7 +99,7 @@ class SelectExecutor {
             return selectCount(sql);
         }
 
-        List<Map<String, Object>> selectByField(String tableName, String field, String condition) {
+        List<Map<String, Object>> selectColumn(String tableName, String field, String condition) {
             if (StringUtils.isNotBlank(condition)) {
                 condition = "WHERE " + condition;
             }
@@ -109,11 +107,6 @@ class SelectExecutor {
             return databaseService.selectColumn(sql, Arrays.asList(field));
         }
 
-        Map<String, Object> selectByFieldList(String tableName, List<String> fieldList, Map<String, Object> whereConditionMap,
-                                              Map<String, String> orderByCondition) {
-            List<Map<String, Object>> list = databaseService.selectColumn(tableName, fieldList, whereConditionMap, orderByCondition);
-            return CollectionUtils.isNotEmpty(list) ? list.get(0) : new HashMap<>();
-        }
 
         List<Map<String, Object>> selectListByFieldList(String tableName, List<String> fieldList, Map<String, Object> whereConditionMap,
                                                         Map<String, String> orderByCondition) {

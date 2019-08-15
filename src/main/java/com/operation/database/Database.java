@@ -127,17 +127,12 @@ public final class Database {
         return DatabaseSwitch.selectCount("", tableName, condition);
     }
 
-    public static List<Map<String, Object>> selectByField(String tableName, String field, String condition) {
-       return DatabaseSwitch.selectByField("", tableName, field, condition);
+    public static List<Map<String, Object>> selectColumn(String tableName, String field, String condition) {
+       return DatabaseSwitch.selectColumn("", tableName, field, condition);
     }
 
-    public static Map<String, Object> selectByFieldList(String tableName, List<String> fieldList, Map<String, Object> whereConditionMap,
-                                                 Map<String, String> orderByCondition) {
-        return DatabaseSwitch.selectByFieldList("", tableName, fieldList, whereConditionMap, orderByCondition);
-    }
-
-    public static List<Map<String, Object>> selectListByFieldList(String tableName, List<String> fieldList, Map<String, Object> whereConditionMap,
+    public static List<Map<String, Object>> selectColumn(String tableName, List<String> fieldList, Map<String, Object> whereConditionMap,
                                                            Map<String, String> orderByCondition) {
-        return DatabaseSwitch.selectListByFieldList("",tableName, fieldList, whereConditionMap, orderByCondition);
+        return DatabaseSwitch.selectColumn("",tableName, fieldList, whereConditionMap, orderByCondition);
     }
 }

@@ -30,15 +30,15 @@ class DatasourceConfig {
         Properties properties = new Properties();
         properties.load(resourceAsStream);
         env = StringUtils.isBlank(env) ? "" : env + ".";
+        String driver = properties.getProperty(String.format("%sjdbc.datasource.%s", env,"driver"));
         String url = properties.getProperty(String.format("%sjdbc.datasource.%s", env,"url"));
         String username = properties.getProperty(String.format("%sjdbc.datasource.%s", env,"username"));
         String password = properties.getProperty(String.format("%sjdbc.datasource.%s", env,"password"));
-        String schema = properties.getProperty(String.format("%sjdbc.datasource.%s", env,"schema"));
+        PreCheckUtils.checkEmpty(driver, "数据库driver不能为空或者不存在");
         PreCheckUtils.checkEmpty(url, "数据库URL不能为空或者不存在");
         PreCheckUtils.checkEmpty(username, "数据库用户名不能为空或者不存在");
         PreCheckUtils.checkEmpty(password, "数据库密码不能为空或者不存在");
-        PreCheckUtils.checkEmpty(schema, "数据库实例不能为空或者不存在");
-        dataSource = new DataSource(url, username, password, schema);
+        dataSource = new DataSource(driver,url, username, password);
     }
 
     DataSource getDataSource() {

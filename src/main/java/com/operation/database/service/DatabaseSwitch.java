@@ -177,22 +177,22 @@ public final class DatabaseSwitch {
         return executor.selectCount(tableName, condition);
     }
 
-    public static List<Map<String, Object>> selectByField(String env, String tableName, String field, String condition) {
+    /**
+     * 根据列查询
+     * @param env
+     * @param tableName
+     * @param column 可以是一列（username），也可以是多列（username,password,email）--用，隔开
+     * @param condition
+     * @return
+     */
+    public static List<Map<String, Object>> selectColumn(String env, String tableName, String column, String condition) {
         PreCheckUtils.checkEmpty(tableName, "表名不能为空");
-        PreCheckUtils.checkEmpty(field, "字段不能为空");
+        PreCheckUtils.checkEmpty(column, "字段不能为空");
        SelectExecutor executor = new SelectExecutor(env);
-       return executor.selectByField(tableName, field, condition);
+       return executor.selectColumn(tableName, column, condition);
     }
 
-    public static Map<String, Object> selectByFieldList(String env, String tableName, List<String> fieldList, Map<String, Object> whereConditionMap,
-                                                 Map<String, String> orderByCondition) {
-        PreCheckUtils.checkEmpty(tableName, "表名不能为空");
-        PreCheckUtils.checkEmpty(fieldList, "查询字段不能为空");
-        SelectExecutor executor = new SelectExecutor(env);
-        return executor.selectByFieldList(tableName, fieldList, whereConditionMap, orderByCondition);
-    }
-
-    public static List<Map<String, Object>> selectListByFieldList(String env, String tableName, List<String> fieldList, Map<String, Object> whereConditionMap,
+    public static List<Map<String, Object>> selectColumn(String env, String tableName, List<String> fieldList, Map<String, Object> whereConditionMap,
                                                            Map<String, String> orderByCondition) {
         PreCheckUtils.checkEmpty(tableName, "表名不能为空");
         PreCheckUtils.checkEmpty(fieldList, "查询字段不能为空");
