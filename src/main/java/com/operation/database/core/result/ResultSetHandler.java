@@ -4,6 +4,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +40,26 @@ public class ResultSetHandler {
         return mapList;
     }
 
+    public List<Map<String, Object>> handle() throws SQLException {
+        List<Map<String, Object>> mapList = Lists.newArrayList();
+        if (resultSet == null) {
+            return mapList;
+        }
+
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
+        while (resultSet.next()) {
+            Map<String, Object> map = Maps.newLinkedHashMap();
+            for (int i = 1; i <= columnCount; i++) {
+                String key = metaData.getColumnLabel(i);
+                Object value = resultSet.getObject(i);
+                map.put(key, value);
+            }
+            mapList.add(map);
+        }
+
+        return mapList;
+    }
     public List<String> getInfoList(String columnLabel) throws SQLException {
         List<String> list = Lists.newArrayList();
         while (resultSet.next()) {

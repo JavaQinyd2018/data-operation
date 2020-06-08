@@ -131,16 +131,7 @@ public class BaseDatabaseService implements BaseDatabase {
         try {
             ResultSet resultSet = executor.executeQuery(sql, null);
             ResultSetHandler resultSetHandler = new ResultSetHandler(resultSet);
-            MetaDataHandler handler = new MetaDataHandler(statementService);
-            String tableName = SqlParser.getTableNameFromSql(sql, SqlType.SELECT);
-            String[] catalogAndTableName = getCatalogAndTableName(tableName);
-            String catalog = null;
-            if (ArrayUtils.isNotEmpty(catalogAndTableName)) {
-                catalog = catalogAndTableName[0];
-                tableName = catalogAndTableName[1];
-            }
-            List<String> columnList = handler.getColumnList(catalog, tableName);
-            List<Map<String, Object>> result = resultSetHandler.handle(columnList);
+            List<Map<String, Object>> result = resultSetHandler.handle();
             if (CollectionUtils.isNotEmpty(result) && result.size() != 1) {
                 throw new DatabaseOperationException("查询的结果信息不止一条");
             }
@@ -191,16 +182,7 @@ public class BaseDatabaseService implements BaseDatabase {
         try {
             ResultSet resultSet = executor.executeQuery(sql, null);
             ResultSetHandler resultSetHandler = new ResultSetHandler(resultSet);
-            MetaDataHandler handler = new MetaDataHandler(statementService);
-            String tableName = SqlParser.getTableNameFromSql(sql, SqlType.SELECT);
-            String[] catalogAndTableName = getCatalogAndTableName(tableName);
-            String catalog = null;
-            if (ArrayUtils.isNotEmpty(catalogAndTableName)) {
-                catalog = catalogAndTableName[0];
-                tableName = catalogAndTableName[1];
-            }
-            List<String> columnList = handler.getColumnList(catalog, tableName);
-            List<Map<String, Object>> result = resultSetHandler.handle(columnList);
+            List<Map<String, Object>> result = resultSetHandler.handle();
             resultSetHandler.close();
             return result;
         } catch (SQLException e) {
